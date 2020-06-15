@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -151,6 +151,53 @@ Transform:
   m_Father: {fileID: 1494899791}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &238981165
+GameObject:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 238981167}
+  - component: {fileID: 238981166}
+  m_Layer: 0
+  m_Name: StaticLightingSky
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &238981166
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 238981165}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 441482e8936e35048a1dffac814e3ef8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Profile: {fileID: 0}
+  m_StaticLightingSkyUniqueID: 0
+  m_SkySettings: {fileID: 0}
+  m_SkySettingsFromProfile: {fileID: 0}
+--- !u!4 &238981167
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 238981165}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &342109368
 GameObject:
   m_ObjectHideFlags: 0
@@ -177,7 +224,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 342109368}
   m_LocalRotation: {x: -0.05255906, y: -0.04222697, z: -0.0022244768, w: 0.9977222}
-  m_LocalPosition: {x: 0.084, y: -0.151, z: 0.333}
+  m_LocalPosition: {x: 0.087, y: -0.154, z: 0.303}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2105057445}
@@ -197,14 +244,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47d9a01a63d1d904eb0fdf4c595c701d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  recoilFactor: {x: 0.02, y: 0, z: -0.2}
-  kickSpeed: 5
-  returnSpeed: 3
+  currentPos: {x: 0, y: 0, z: 0}
+  currentRot: {x: 0, y: 0, z: 0, w: 0}
+  currentRecoilFactor: {x: 0, y: 0, z: -0.2}
+  currentReturnSpeed: 5
+  currentKickSpeed: 10
+  currentRecoilRotFactor: 0.01
+  currentCamRecoil: {x: 0, y: 0, z: 0}
+  origPos: {x: 0, y: 0, z: 0}
+  origRot: {x: 0, y: 0, z: 0, w: 0}
+  origReturnSpeed: 8
+  origKickSpeed: 10
+  origRecoilRotFactor: 0.01
+  origCamRecoil: {x: 0, y: 0, z: 0}
+  adsPosition: {x: 0, y: -0.12, z: 0}
+  adsRotation: {x: -1, y: 0.5, z: 0}
+  adsReturnSpeed: 20
+  adsKickSpeed: 5
+  adsRecoilRotFactor: 0.005
+  adsCamRecoil: {x: 0, y: 0, z: 0}
   timeBetweenShots: 0.1
-  recoilRotFactor: 0.01
-  adsSpeed: 10
-  adsPosition: {x: 0, y: -0.15, z: 0}
-  adsRotation: {x: 0, y: 0, z: 0, w: 0}
+  bulletHolePrefab: {fileID: 3427326788976888724, guid: 3aeca9492a36bfc419146c70d9e9dd68,
+    type: 3}
   muzzleFlash: {fileID: 2105057444}
   hitEffect: {fileID: 2405511675445379643, guid: 900bfc9cc025b12408d3b93e0c54922a,
     type: 3}
@@ -820,8 +881,8 @@ Camera:
   m_GameObject: {fileID: 963194225}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.25517443, g: 0.26415092, b: 0.1457814, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1385,7 +1446,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 70b28c1c486bda047b0a1675731a68eb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

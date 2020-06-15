@@ -6,22 +6,47 @@ namespace FPS.Shooting
 {
     public class Firing : MonoBehaviour
     {
-        [SerializeField] Vector3 recoilFactor = new Vector3(1f, 1f, 1f);
-        [SerializeField] float kickSpeed = 5f;
-        [SerializeField] float returnSpeed = 3f;
+        [Header("Current Recoil Stats")]
+        public Vector3 currentPos;
+        public Quaternion currentRot;        
+        public Vector3 currentRecoilFactor = new Vector3(1f, 1f, 1f);
+        public float currentReturnSpeed;
+        public float currentKickSpeed;
+        public float currentRecoilRotFactor;
+        public Vector3 currentCamRecoil;
+
+        [Header("Hip Fire Recoil Stats")]
+        public Vector3 origPos;
+        public Quaternion origRot;
+        public float origReturnSpeed = 3f;
+        public float origKickSpeed = 5f;
+        public float origRecoilRotFactor = 0.01f;
+        public Vector3 origCamRecoil;
+
+        [Header("ADS Recoil Stats")]
+        public Vector3 adsPosition;
+        public Vector3 adsRotation;
+        public float adsReturnSpeed = 5f;
+        public float adsKickSpeed = 10f;
+        public float adsRecoilRotFactor = 0.005f;
+        public Vector3 adsCamRecoil;
+
+        [Header("Constant Recoil Stats")]
+
         [SerializeField] float timeBetweenShots = 0.1f;
-        [SerializeField] float recoilRotFactor = 1f;
-        [SerializeField] float adsSpeed = 5f;
-        [SerializeField] Vector3 adsPosition;
-        [SerializeField] Quaternion adsRotation = Quaternion.identity;
-        [SerializeField] ParticleSystem muzzleFlash;
-        [SerializeField] ParticleSystem hitEffect;
-        [SerializeField] GameObject shootAudio;
+        [SerializeField] GameObject bulletHolePrefab;
         
         
+        
+        
+
+
+        [Header("FX")]
+        public ParticleSystem muzzleFlash;
+        public  ParticleSystem hitEffect;
+        public GameObject shootAudio;
+
         Vector3 recoilPos;
-        Vector3 origPos;
-        Quaternion origRot;
         Quaternion recoilRot;
         float deviationRotY;
         float deviationRotX;
@@ -47,8 +72,8 @@ namespace FPS.Shooting
 
         private void FixedUpdate()
         {
-            transform.localPosition = Vector3.Lerp(transform.localPosition, origPos, returnSpeed * Time.fixedDeltaTime);
-            transform.localRotation = Quaternion.Lerp(transform.localRotation, origRot, returnSpeed * Time.fixedDeltaTime);
+            transform.localPosition = Vector3.Lerp(transform.localPosition, currentPos, currentReturnSpeed * Time.fixedDeltaTime);
+            transform.localRotation = Quaternion.Lerp(transform.localRotation, currentRot, currentReturnSpeed * Time.fixedDeltaTime);
         }
 
         private void Update()
@@ -69,7 +94,6 @@ namespace FPS.Shooting
 
                 timeHeldDownLeftMouse += Time.deltaTime * 1/timeBetweenShots;
                 
-
             }
 
             else
@@ -77,10 +101,25 @@ namespace FPS.Shooting
                 timeHeldDownLeftMouse -= Time.deltaTime * 1/(timeBetweenShots * 1.2f);
             }
 
-            
+            if(Input.GetMouseButton(1))
+            {
+                isAimingDownSights = true;
+            }
+            else
+            {
+                isAimingDownSights = false;
+            }
 
-            
-            
+
+            if(isAimingDownSights)
+            {
+                ProcessADS();
+            }
+            else
+            {
+                ProcessHipFireAim();
+            }
+
 
             timeSinceLastShot += Time.deltaTime;
             timeHeldDownLeftMouse = Mathf.Clamp(timeHeldDownLeftMouse, 0, maxTimeHeldLeftButton * (1/timeBetweenShots));
@@ -88,31 +127,46 @@ namespace FPS.Shooting
             
         }
 
-        
+        private void ProcessHipFireAim()
+        {
+            currentPos = origPos;
+            currentRot = origRot;
 
-        
+            currentReturnSpeed = origReturnSpeed;
+            currentKickSpeed = origKickSpeed;
+            currentRecoilRotFactor = origRecoilRotFactor;
+        }
+
+        private void ProcessADS()
+        {
+            currentPos = adsPosition;
+            currentRot.eulerAngles = adsRotation;
+
+            currentReturnSpeed = adsReturnSpeed;
+            currentKickSpeed = adsKickSpeed;
+            currentRecoilRotFactor = adsRecoilRotFactor;
+        }
 
         private void CalculateRecoil()
         {
-            recoilPos = origPos + new Vector3(Random.Range(-recoilFactor.x, recoilFactor.x),
-                Random.Range(recoilFactor.y, recoilFactor.y),
-                recoilFactor.z);
+            recoilPos = currentPos + new Vector3(Random.Range(-currentRecoilFactor.x, currentRecoilFactor.x),
+                Random.Range(currentRecoilFactor.y, currentRecoilFactor.y),
+                currentRecoilFactor.z);
 
             
 
-            deviationRotY = Random.Range(-timeHeldDownLeftMouse * recoilRotFactor, timeHeldDownLeftMouse * recoilRotFactor);
-            deviationRotX = Random.Range(0, timeHeldDownLeftMouse * recoilRotFactor);
+            deviationRotY = Random.Range(-timeHeldDownLeftMouse * currentRecoilRotFactor, timeHeldDownLeftMouse * currentRecoilRotFactor);
+            deviationRotX = Random.Range((-timeHeldDownLeftMouse * currentRecoilRotFactor)/2f, timeHeldDownLeftMouse * currentRecoilRotFactor);
 
-            recoilRot = Quaternion.Euler(origPos.x - deviationRotX * 100f, origPos.y + deviationRotY * 100f, origPos.z);
+            recoilRot = Quaternion.Euler(currentPos.x - deviationRotX * 100f, currentPos.y + deviationRotY * 100f, currentPos.z);
 
-            
-            
+           
         }
 
         private void ExecuteRecoil()
         {
-            transform.localPosition = Vector3.Lerp(transform.localPosition, recoilPos, kickSpeed * 0.02f);
-            transform.localRotation = Quaternion.Lerp(transform.localRotation, recoilRot, kickSpeed * 0.02f);
+            transform.localPosition = Vector3.Lerp(transform.localPosition, recoilPos, currentKickSpeed * 0.02f);
+            transform.localRotation = Quaternion.Lerp(transform.localRotation, recoilRot, currentKickSpeed * 0.02f);
         }
 
         private void ShootAudio()
@@ -134,6 +188,7 @@ namespace FPS.Shooting
                 Camera.main.transform.forward + Camera.main.transform.right * deviationRotY + Camera.main.transform.up * deviationRotX, out hit))
             {
                 HitVFX(hit);
+                Instantiate(bulletHolePrefab, hit.point - transform.forward * 0.01f, Quaternion.LookRotation(hit.normal));
             }
         }
 
