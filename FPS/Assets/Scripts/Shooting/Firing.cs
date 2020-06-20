@@ -1,11 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using FPS.Control;
+
 
 namespace FPS.Shooting
 {
     public class Firing : MonoBehaviour
     {
+        [Header("CamRecoilStats")]
+        public float camRecoilReturnSpeed = 5f;
+        public float yRecoil = 0.5f;
+        public float xRecoil = 0.5f;
+        
         [Header("Current Recoil Stats")]
         public Vector3 currentPos;
         public Quaternion currentRot;        
@@ -55,6 +62,8 @@ namespace FPS.Shooting
         float maxTimeHeldLeftButton = 1f;
         bool isAimingDownSights = false;
 
+        public static bool isShooting = false;
+
 
 
 
@@ -72,6 +81,11 @@ namespace FPS.Shooting
 
         private void FixedUpdate()
         {
+            if(!isShooting)
+            {
+                LookAround.testEulerAngles = Vector3.Lerp(LookAround.testEulerAngles, LookAround.assistEulerAngles, camRecoilReturnSpeed * Time.fixedDeltaTime);
+            }
+            
             transform.localPosition = Vector3.Lerp(transform.localPosition, currentPos, currentReturnSpeed * Time.fixedDeltaTime);
             transform.localRotation = Quaternion.Lerp(transform.localRotation, currentRot, currentReturnSpeed * Time.fixedDeltaTime);
         }
@@ -89,8 +103,14 @@ namespace FPS.Shooting
                     ShootAudio();
                     ProcessRaycast();
 
+                    CamRecoil();
+
+
+                    isShooting = true;
+
                     timeSinceLastShot = 0;
                 }
+                
 
                 timeHeldDownLeftMouse += Time.deltaTime * 1/timeBetweenShots;
                 
@@ -98,6 +118,7 @@ namespace FPS.Shooting
 
             else
             {
+                isShooting = false;
                 timeHeldDownLeftMouse -= Time.deltaTime * 1/(timeBetweenShots * 1.2f);
             }
 
@@ -124,7 +145,9 @@ namespace FPS.Shooting
             timeSinceLastShot += Time.deltaTime;
             timeHeldDownLeftMouse = Mathf.Clamp(timeHeldDownLeftMouse, 0, maxTimeHeldLeftButton * (1/timeBetweenShots));
 
-            
+
+
+            print(LookAround.assistEulerAngles);
         }
 
         private void ProcessHipFireAim()
@@ -195,6 +218,11 @@ namespace FPS.Shooting
         private void MuzzleFlashVFX()
         {
             muzzleFlash.Play();
+        }
+
+        private void CamRecoil()
+        {
+            LookAround.testEulerAngles += new Vector3(-xRecoil, yRecoil, 0);
         }
 
         

@@ -1,39 +1,68 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using FPS.Shooting;
 
 namespace FPS.Control
 {
+    
     public class LookAround : MonoBehaviour
     {
         [SerializeField] float sensitivity = 3f;
         [SerializeField] Camera myCamera;
+        [SerializeField] Transform CamRecoilAssist;
+        public static Vector3 testEulerAngles;
+        public static Vector3 assistEulerAngles;
 
-
-        float yRot = 0f;
-        float xRot = 0f;
+        float yThrow;
+        float xThrow;
+        float xRotation;
+        float yRotation;
 
         private void Start()
         {
-           Cursor.lockState = CursorLockMode.Locked;
+            assistEulerAngles = testEulerAngles;
+            Cursor.lockState = CursorLockMode.Locked;
         }
         private void Update()
         {
             ProcessLookAround();
+            
         }
 
         private void ProcessLookAround()
         {
-            float yThrow = Input.GetAxis("Mouse Y") * sensitivity;
-            float xThrow = Input.GetAxis("Mouse X") * sensitivity;
 
-            yRot -= yThrow;
-            xRot += xThrow;
+            yThrow = Input.GetAxis("Mouse Y");
+            xThrow = Input.GetAxis("Mouse X");
+            
+            yRotation = xThrow * sensitivity;
+            xRotation = yThrow * sensitivity;
 
-            float clampedYRot = Mathf.Clamp(yRot, -85f, 85f);
+            testEulerAngles = new Vector3(Mathf.Clamp(testEulerAngles.x - xRotation, -85, 85), testEulerAngles.y, testEulerAngles.z);
 
-            myCamera.transform.localRotation = Quaternion.Euler(clampedYRot, transform.localRotation.y, transform.localRotation.z);
-            transform.rotation = Quaternion.Euler(transform.rotation.x, xRot, transform.rotation.z);
+            if (!Firing.isShooting)
+            {
+                assistEulerAngles = new Vector3(Mathf.Clamp(assistEulerAngles.x - xRotation, -85, 85), assistEulerAngles.y, assistEulerAngles.z);
+            }
+            else if (Firing.isShooting && yThrow > 0)
+            {
+                assistEulerAngles = new Vector3(Mathf.Clamp(assistEulerAngles.x - xRotation, -85, 85), assistEulerAngles.y, assistEulerAngles.z);
+            }
+            else if (Firing.isShooting && yThrow < 0 && testEulerAngles.x >= assistEulerAngles.x)
+            {
+                assistEulerAngles = new Vector3(Mathf.Clamp(assistEulerAngles.x - xRotation, -85, 85), assistEulerAngles.y, assistEulerAngles.z);
+            }
+
+
+            transform.Rotate(0, yRotation, 0, Space.Self);
+         
+            myCamera.transform.localRotation = Quaternion.Euler(testEulerAngles);
+            CamRecoilAssist.localRotation = Quaternion.Euler(assistEulerAngles);
         }
+
     }
+
+    
+
 }
