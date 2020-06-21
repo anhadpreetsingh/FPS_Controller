@@ -147,7 +147,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 12024361}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.96, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 963194228}
@@ -278,6 +278,36 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &309532672
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 309532673}
+  m_Layer: 0
+  m_Name: Generated During Runtime
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &309532673
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 309532672}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &342109368
 GameObject:
   m_ObjectHideFlags: 0
@@ -289,6 +319,7 @@ GameObject:
   - component: {fileID: 342109369}
   - component: {fileID: 342109370}
   - component: {fileID: 342109371}
+  - component: {fileID: 342109372}
   m_Layer: 9
   m_Name: Gun
   m_TagString: Untagged
@@ -324,28 +355,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47d9a01a63d1d904eb0fdf4c595c701d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  camRecoilReturnSpeed: 2
-  yRecoil: 0.3
-  xRecoil: 0.5
-  currentPos: {x: 0, y: 0, z: 0}
-  currentRot: {x: 0, y: 0, z: 0, w: 0}
-  currentRecoilFactor: {x: 0, y: 0, z: -0.2}
-  currentReturnSpeed: 5
-  currentKickSpeed: 10
-  currentRecoilRotFactor: 0.01
-  currentCamRecoil: {x: 0, y: 0, z: 0}
-  origPos: {x: 0, y: 0, z: 0}
-  origRot: {x: 0, y: 0, z: 0, w: 0}
-  origReturnSpeed: 8
-  origKickSpeed: 10
-  origRecoilRotFactor: 0.007
-  origCamRecoil: {x: 0, y: 0, z: 0}
-  adsPosition: {x: 0, y: -0.12, z: 0}
-  adsRotation: {x: -1, y: 0.5, z: 0}
-  adsReturnSpeed: 20
-  adsKickSpeed: 5
-  adsRecoilRotFactor: 0.003
-  adsCamRecoil: {x: 0, y: 0, z: 0}
+  parentForTemp: {fileID: 309532673}
   timeBetweenShots: 0.1
   bulletHolePrefab: {fileID: 3427326788976888724, guid: 3aeca9492a36bfc419146c70d9e9dd68,
     type: 3}
@@ -370,6 +380,41 @@ MonoBehaviour:
   swaySpeed: 10
   smoothAmount: 2
   zSwaySpeed: 4
+--- !u!114 &342109372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 342109368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6471a3949cbc40e43ac78dd9d9b61dd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  camRecoilReturnSpeed: 10
+  yRecoil: 0.2
+  xRecoil: 0.5
+  currentPos: {x: 0, y: 0, z: 0}
+  currentRot: {x: 0, y: 0, z: 0, w: 0}
+  currentRecoilFactor: {x: 0, y: 0, z: -0.2}
+  currentReturnSpeed: 0
+  currentKickSpeed: 0
+  currentRecoilRotFactor: 0
+  origPos: {x: 0, y: 0, z: 0}
+  origRot: {x: 0, y: 0, z: 0, w: 0}
+  origReturnSpeed: 8
+  origKickSpeed: 10
+  origRecoilRotFactor: 0.007
+  adsPosition: {x: 0, y: -0.12, z: 0}
+  adsRotation: {x: -1, y: 0.3, z: 0}
+  adsReturnSpeed: 20
+  adsKickSpeed: 5
+  adsRecoilRotFactor: 0.003
+  deviationRotY: 0
+  deviationRotX: 0
+  timeHeldDownLeftMouse: 0
+  player: {fileID: 1494899791}
 --- !u!1 &417728491
 GameObject:
   m_ObjectHideFlags: 0
@@ -1460,7 +1505,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sensitivity: 3
   myCamera: {fileID: 12024364}
-  CamRecoilAssist: {fileID: 417728492}
+  camRecoilAssist: {fileID: 417728492}
 --- !u!143 &1494899790
 CharacterController:
   m_ObjectHideFlags: 0

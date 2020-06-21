@@ -8,63 +8,26 @@ namespace FPS.Shooting
 {
     public class Firing : MonoBehaviour
     {
-        [Header("CamRecoilStats")]
-        public float camRecoilReturnSpeed = 5f;
-        public float yRecoil = 0.5f;
-        public float xRecoil = 0.5f;
-        
-        [Header("Current Recoil Stats")]
-        public Vector3 currentPos;
-        public Quaternion currentRot;        
-        public Vector3 currentRecoilFactor = new Vector3(1f, 1f, 1f);
-        public float currentReturnSpeed;
-        public float currentKickSpeed;
-        public float currentRecoilRotFactor;
-        public Vector3 currentCamRecoil;
-
-        [Header("Hip Fire Recoil Stats")]
-        public Vector3 origPos;
-        public Quaternion origRot;
-        public float origReturnSpeed = 3f;
-        public float origKickSpeed = 5f;
-        public float origRecoilRotFactor = 0.01f;
-        public Vector3 origCamRecoil;
-
-        [Header("ADS Recoil Stats")]
-        public Vector3 adsPosition;
-        public Vector3 adsRotation;
-        public float adsReturnSpeed = 5f;
-        public float adsKickSpeed = 10f;
-        public float adsRecoilRotFactor = 0.005f;
-        public Vector3 adsCamRecoil;
+        [SerializeField] Transform parentForTemp;
 
         [Header("Constant Recoil Stats")]
-
         [SerializeField] float timeBetweenShots = 0.1f;
         [SerializeField] GameObject bulletHolePrefab;
-        
-        
-        
-        
-
 
         [Header("FX")]
         public ParticleSystem muzzleFlash;
         public  ParticleSystem hitEffect;
         public GameObject shootAudio;
 
-        Vector3 recoilPos;
-        Quaternion recoilRot;
-        float deviationRotY;
-        float deviationRotX;
+        
+
+        public static bool assistAdjust = false;
+
+
+        RecoilHandler recoilHandler;
         float timeSinceLastShot = Mathf.Infinity;
-        float timeHeldDownLeftMouse = 0f;
         float maxTimeHeldLeftButton = 1f;
-        bool isAimingDownSights = false;
-
-        public static bool isShooting = false;
-
-
+        
 
 
         void Awake()
@@ -74,21 +37,10 @@ namespace FPS.Shooting
         }
         private void Start()
         {
-            origPos = transform.localPosition;
-            origRot = transform.localRotation;
-            
+            recoilHandler = GetComponent<RecoilHandler>();
         }
 
-        private void FixedUpdate()
-        {
-            if(!isShooting)
-            {
-                LookAround.testEulerAngles = Vector3.Lerp(LookAround.testEulerAngles, LookAround.assistEulerAngles, camRecoilReturnSpeed * Time.fixedDeltaTime);
-            }
-            
-            transform.localPosition = Vector3.Lerp(transform.localPosition, currentPos, currentReturnSpeed * Time.fixedDeltaTime);
-            transform.localRotation = Quaternion.Lerp(transform.localRotation, currentRot, currentReturnSpeed * Time.fixedDeltaTime);
-        }
+        
 
         private void Update()
         {
@@ -96,111 +48,52 @@ namespace FPS.Shooting
             {
                 if(timeSinceLastShot >= timeBetweenShots)
                 {
-                    CalculateRecoil();
-                    ExecuteRecoil();
-                    
-                    MuzzleFlashVFX();
-                    ShootAudio();
+                    recoilHandler.Recoil();
+                    ProcessFX();
                     ProcessRaycast();
 
-                    CamRecoil();
-
-
-                    isShooting = true;
+                    assistAdjust = true;
 
                     timeSinceLastShot = 0;
                 }
+
+
+                recoilHandler.timeHeldDownLeftMouse += Time.deltaTime * 1/timeBetweenShots;
                 
-
-                timeHeldDownLeftMouse += Time.deltaTime * 1/timeBetweenShots;
-                
             }
 
             else
             {
-                isShooting = false;
-                timeHeldDownLeftMouse -= Time.deltaTime * 1/(timeBetweenShots * 1.2f);
+                assistAdjust = false;
+                recoilHandler.timeHeldDownLeftMouse -= Time.deltaTime * 1/(timeBetweenShots * 1.2f);
             }
-
-            if(Input.GetMouseButton(1))
-            {
-                isAimingDownSights = true;
-            }
-            else
-            {
-                isAimingDownSights = false;
-            }
-
-
-            if(isAimingDownSights)
-            {
-                ProcessADS();
-            }
-            else
-            {
-                ProcessHipFireAim();
-            }
-
 
             timeSinceLastShot += Time.deltaTime;
-            timeHeldDownLeftMouse = Mathf.Clamp(timeHeldDownLeftMouse, 0, maxTimeHeldLeftButton * (1/timeBetweenShots));
+            recoilHandler.timeHeldDownLeftMouse = Mathf.Clamp(recoilHandler.timeHeldDownLeftMouse, 0, maxTimeHeldLeftButton * (1/timeBetweenShots));
 
 
 
             print(LookAround.assistEulerAngles);
         }
 
-        private void ProcessHipFireAim()
+        private void ProcessFX()
         {
-            currentPos = origPos;
-            currentRot = origRot;
-
-            currentReturnSpeed = origReturnSpeed;
-            currentKickSpeed = origKickSpeed;
-            currentRecoilRotFactor = origRecoilRotFactor;
+            MuzzleFlashVFX();
+            ShootAudio();
         }
 
-        private void ProcessADS()
-        {
-            currentPos = adsPosition;
-            currentRot.eulerAngles = adsRotation;
-
-            currentReturnSpeed = adsReturnSpeed;
-            currentKickSpeed = adsKickSpeed;
-            currentRecoilRotFactor = adsRecoilRotFactor;
-        }
-
-        private void CalculateRecoil()
-        {
-            recoilPos = currentPos + new Vector3(Random.Range(-currentRecoilFactor.x, currentRecoilFactor.x),
-                Random.Range(currentRecoilFactor.y, currentRecoilFactor.y),
-                currentRecoilFactor.z);
-
-            
-
-            deviationRotY = Random.Range(-timeHeldDownLeftMouse * currentRecoilRotFactor, timeHeldDownLeftMouse * currentRecoilRotFactor);
-            deviationRotX = Random.Range((-timeHeldDownLeftMouse * currentRecoilRotFactor)/2f, timeHeldDownLeftMouse * currentRecoilRotFactor);
-
-            recoilRot = Quaternion.Euler(currentPos.x - deviationRotX * 100f, currentPos.y + deviationRotY * 100f, currentPos.z);
-
-           
-        }
-
-        private void ExecuteRecoil()
-        {
-            transform.localPosition = Vector3.Lerp(transform.localPosition, recoilPos, currentKickSpeed * 0.02f);
-            transform.localRotation = Quaternion.Lerp(transform.localRotation, recoilRot, currentKickSpeed * 0.02f);
-        }
 
         private void ShootAudio()
         {
             GameObject shootFX = Instantiate(shootAudio, transform.position, Quaternion.identity);
+            shootFX.transform.parent = parentForTemp;
             Destroy(shootFX, 1f);
         }
 
         private void HitVFX(RaycastHit hit)
         {
             ParticleSystem hitVFX = Instantiate(hitEffect, hit.point, Quaternion.LookRotation(hit.normal));
+            hitVFX.transform.parent = parentForTemp;
             Destroy(hitVFX.gameObject, 1.1f);
         }
 
@@ -208,10 +101,12 @@ namespace FPS.Shooting
         {
             RaycastHit hit;
             if (Physics.Raycast(Camera.main.transform.position, 
-                Camera.main.transform.forward + Camera.main.transform.right * deviationRotY + Camera.main.transform.up * deviationRotX, out hit))
+                Camera.main.transform.forward + Camera.main.transform.right * recoilHandler.deviationRotY + Camera.main.transform.up * recoilHandler.deviationRotX, out hit))
             {
                 HitVFX(hit);
-                Instantiate(bulletHolePrefab, hit.point - transform.forward * 0.01f, Quaternion.LookRotation(hit.normal));
+                GameObject bulletHole = Instantiate(bulletHolePrefab, hit.point - transform.forward * 0.01f, Quaternion.LookRotation(hit.normal));
+                bulletHole.transform.parent = parentForTemp;
+                Destroy(bulletHole, 30f);
             }
         }
 
@@ -219,13 +114,6 @@ namespace FPS.Shooting
         {
             muzzleFlash.Play();
         }
-
-        private void CamRecoil()
-        {
-            LookAround.testEulerAngles += new Vector3(-xRecoil, yRecoil, 0);
-        }
-
-        
 
     }
 }
