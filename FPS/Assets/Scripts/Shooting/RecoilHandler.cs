@@ -7,9 +7,15 @@ namespace FPS.Shooting
 {
     public class RecoilHandler : MonoBehaviour
     {
+        [Header("Recoil Pattern")]
+        public float[] yRotPattern;
+        public float transitionSpeed = 2f;
+        int i;
+
+
         [Header("CamRecoilStats")]
         public float camRecoilReturnSpeed = 5f;
-        public float yRecoil = 0.5f;
+        public float yRecoil = 0f;
         public float xRecoil = 0.5f;
         public static float xMovedRot = 3f;
         public static float yMovedRot = 1f;
@@ -67,6 +73,12 @@ namespace FPS.Shooting
             else
             {
                 ProcessHipFireAim();
+            }
+
+            if(!Firing.assistAdjust)
+            {
+                i = 0;
+                yRecoil = 0f;
             }
 
             
@@ -147,6 +159,22 @@ namespace FPS.Shooting
         {
             LookAround.testEulerAngles += new Vector3(-xRecoil, 0f, 0f);
             LookAround.playerEulerAngles += new Vector3(0f, yRecoil, 0f);
+           
+            if(Mathf.Abs(yRecoil - yRotPattern[i]) <= 0.05 && i < yRotPattern.Length - 1)
+            {
+                i += 1;
+            }
+            else if(Mathf.Abs(yRecoil - yRotPattern[i]) <= 0.05  && i == yRotPattern.Length - 1)
+            {
+                yRecoil = 0f;
+            }
+            else
+            {
+                yRecoil = Mathf.Lerp(yRecoil, yRotPattern[i], transitionSpeed); 
+            }
+
+            
+
         }
 
 

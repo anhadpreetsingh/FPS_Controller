@@ -73,7 +73,7 @@ namespace FPS.Shooting
 
 
 
-            print(LookAround.assistEulerAngles);
+            
         }
 
         private void ProcessFX()

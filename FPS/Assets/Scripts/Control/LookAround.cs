@@ -53,7 +53,7 @@ namespace FPS.Control
                 assistEulerAngles = new Vector3(Mathf.Clamp(assistEulerAngles.x - yThrow, -85, 85), assistEulerAngles.y, assistEulerAngles.z);
                 assistEulerAngles += new Vector3(0f, xThrow, 0f);
             }
-            if(Firing.assistAdjust && yThrow != 0)
+            if(Firing.assistAdjust && Vector3.Distance(testEulerAngles, new Vector3(assistEulerAngles.x, 0f, 0f)) > RecoilHandler.xMovedRot * 3f)
             {
                 assistEulerAngles = new Vector3(testEulerAngles.x + RecoilHandler.xMovedRot, assistEulerAngles.y, assistEulerAngles.z); 
                 assistEulerAngles = new Vector3(assistEulerAngles.x, playerEulerAngles.y - RecoilHandler.yMovedRot, assistEulerAngles.z); 
